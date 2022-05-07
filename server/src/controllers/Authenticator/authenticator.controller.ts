@@ -12,17 +12,12 @@ class AuthenticatorController implements IController {
     public constructor() {
         this.router = express.Router();
         this.initRoutes();
+        console.log("AuthenticatorController loaded");
     }
 
     private initRoutes(): void {
         this.router.post(`${this.path}/register`, this.registerAccount);
         this.router.post(`${this.path}/login`, this.loginAccount);
-    }
-
-    private async checkAccountExists(username: string): Promise<boolean> {
-        const account = await adminModel.findOne({ username });
-        if (!account) return false;
-        return true;
     }
 
     private async registerAccount(req: express.Request, res: express.Response, next: express.NextFunction): Promise<express.Response<IAuthenticator>> {
@@ -33,7 +28,7 @@ class AuthenticatorController implements IController {
             });
         }
 
-        const accountExists = await this.checkAccountExists(username);
+        const accountExists = await adminModel.findOne({ username });
         if (accountExists) {
             return res.status(400).json({
                 message: 'Account already exists'

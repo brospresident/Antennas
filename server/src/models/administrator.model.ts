@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import Administrator from '../controllers/Administrators/administrator.interface';
 
 const adminSchema = new mongoose.Schema({
-    name: {
+    username: {
         type: String,
         required: true
     },
