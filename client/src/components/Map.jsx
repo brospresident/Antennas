@@ -2,6 +2,9 @@ import * as Leaflet from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useState } from 'react';
+import {isAdmin} from '../requests'
+import AntennaModal from './AntennaForm';
+// import AntennaModal from './AntennaForm'
 
 Leaflet.Icon.Default.imagePath =
 '../node_modules/leaflet'
@@ -15,11 +18,18 @@ Leaflet.Icon.Default.mergeOptions({
 });
 
 const Map = () => {
-    const [position, setPosition] = useState({ lat: 40.7128, lng: -74.0060 });
+    const [position, setPosition] = useState({ lat: 44.4268, lng: 26.1025 });
     const [mousePosition, setMousePosition] = useState({ lat: 0, lng: 0 });
+    const [open, setOpen] = useState(false); // for antenna modal
 
-    const handleClick = (e) => {
+    const handleClick = async (e) => {
+        const isAdm = await isAdmin();
+        // if (!isAdm) return;
+
         setMousePosition({ lat: e.latlng.lat, lng: e.latlng.lng });
+        const path = window.location.pathname;
+        // if (path !== '/admin/add-location') return;
+        setOpen(true);
     }
 
     const LocationFinder = () => {
@@ -45,6 +55,7 @@ const Map = () => {
                 </Marker>
                 <LocationFinder />
             </MapContainer>
+            <AntennaModal open={open} handleClose={() => setOpen(false)} position={mousePosition} />
         </div>
     )
 }

@@ -16,13 +16,13 @@ export default class AdministratorController implements IController {
         this.router.get(`${this.path}/`, this.checkLogin);
     }
 
-    private async checkLogin(req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> {
+    private async checkLogin(req: express.Request, res: express.Response, next: express.NextFunction): Promise<boolean> {
         const token = req.headers.authorization;
         if (!token) {
             res.status(401).json({
                 message: 'No token provided'
             });
-            return;
+            return false;
         }
 
         const decoded = JWT.verifyToken(token);
@@ -30,7 +30,7 @@ export default class AdministratorController implements IController {
             res.status(401).json({
                 message: 'Invalid token'
             });
-            return;
+            return false;
         }
 
         const admin = await adminModel.findOne({ username: decoded });
@@ -38,11 +38,12 @@ export default class AdministratorController implements IController {
             res.status(401).send({
                 message: 'Invalid token'
             });
-            return;
+            return false;
         }
         
         res.status(200).json({
             message: 'Token is valid'
         });
+        return true;
     }
 }
