@@ -4,7 +4,7 @@ import mongo from './services/mongo';
 
 export default class App {
     private static instance: App | null = null;
-    private readonly PORT: number = 3000;
+    private readonly PORT: number = 3001;
     private app: express.Application;
 
     private constructor(controllers: IController[] = []) {

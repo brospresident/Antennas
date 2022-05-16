@@ -1,42 +1,52 @@
-import {Component} from 'react';
 import * as Leaflet from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { useState } from 'react';
 
-class Map extends Component {
-    constructor () {
-        super();
-        this.state = {
-            lat: 44.4268,
-            lng: 26.1025,
-            zoom: 7,
-            map: null
-        };
+Leaflet.Icon.Default.imagePath =
+'../node_modules/leaflet'
+
+delete Leaflet.Icon.Default.prototype._getIconUrl;
+
+Leaflet.Icon.Default.mergeOptions({
+    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+    iconUrl: require('leaflet/dist/images/marker-icon.png'),
+    shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+});
+
+const Map = () => {
+    const [position, setPosition] = useState({ lat: 40.7128, lng: -74.0060 });
+    const [mousePosition, setMousePosition] = useState({ lat: 0, lng: 0 });
+
+    const handleClick = (e) => {
+        setMousePosition({ lat: e.latlng.lat, lng: e.latlng.lng });
     }
 
-    componentDidMount() {
-        const container = Leaflet.DomUtil.get('mapid');
-        if (container !== null) {
-            container._leaflet_id = null;
-        }
-        
-        const map = Leaflet.map('mapid').setView([this.state.lat, this.state.lng], 13);
-
-        Leaflet.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-            maxZoom: 18,
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
-                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            id: 'mapbox/streets-v11',
-            tileSize: 512,
-            zoomOffset: -1
-        }).addTo(map);
-
-        this.setState({map: map});
+    const LocationFinder = () => {
+        useMapEvents({
+            click(e) {
+                handleClick(e);
+            }
+        });
+        return;
     }
 
-    render() {
-        return (
-            <div id="mapid" className = "leaflet-container leaflet-touch leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" style={{height: '660px', width: '1080px'}}></div>
-        )
-    }
+    return (
+        <div id="map">
+            <MapContainer onClick={handleClick} center={[position.lat, position.lng]} zoom={13} scrollWheelZoom={true} style={{height: '660px', width: '1080px'}}>
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <Marker position={[position.lat, position.lng]}>
+                    <Popup>
+                        A pretty CSS3 popup. <br /> Easily customizable.
+                    </Popup>
+                </Marker>
+                <LocationFinder />
+            </MapContainer>
+        </div>
+    )
 }
 
 export default Map;
