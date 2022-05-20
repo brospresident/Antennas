@@ -22,7 +22,7 @@ export default class AntennaController implements IController {
     }
 
     private async createAntenna(req: express.Request, res: express.Response, next: express.NextFunction): Promise<void> {
-        const { provider, lat, lng } = req.body;
+        const { provider, lat, lng } = req.body.data;
         if (!provider || !lat || !lng) {
             res.status(400).json({
                 message: 'Missing required fields'

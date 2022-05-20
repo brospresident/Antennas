@@ -21,10 +21,25 @@ class AuthenticatorController implements IController {
     }
 
     private async registerAccount(req: express.Request, res: express.Response, next: express.NextFunction): Promise<express.Response<IAuthenticator>> {
-        const { username, password, email } = req.body;
-        if (!username || !password || !email) {
+        const { username, password, email, code } = req.body.data;
+        if (!username || !password || !email || !code) {
             return res.status(400).json({
                 message: 'Missing required fields'
+            });
+        }
+
+        let validCode: boolean = false;
+        for (const c of invitationCodes) {
+            if (c === code) {
+                invitationCodes.splice(invitationCodes.indexOf(code), 1);
+                validCode = true;
+                break;
+            }
+        }
+
+        if (!validCode) {
+            return res.status(400).json({
+                message: 'Invalid activation code'
             });
         }
 
@@ -46,7 +61,7 @@ class AuthenticatorController implements IController {
     }
 
     private async loginAccount(req: express.Request, res: express.Response, next: express.NextFunction): Promise<express.Response<IAuthenticator>> {
-        const { username, password } = req.body;
+        const { username, password } = req.body.data;
         if (!username || !password) {
             return res.status(400).json({
                 message: 'Missing required fields'
@@ -74,5 +89,6 @@ class AuthenticatorController implements IController {
         });
     }
 }
+import { invitationCodes } from '../Administrators/administrator.controller';
 
 export default AuthenticatorController;

@@ -1,6 +1,7 @@
 import express from 'express';
 import IController from './controllers/controller';
 import mongo from './services/mongo';
+import cors from 'cors';
 
 export default class App {
     private static instance: App | null = null;
@@ -23,6 +24,7 @@ export default class App {
 
     private initMiddleware(): void {
         this.app.use(express.json());
+        this.app.use(cors());
     }
 
     private initApp(): void {

@@ -1,9 +1,10 @@
 import * as Leaflet from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {isAdmin} from '../requests'
 import AntennaModal from './AntennaForm';
+import { getAllAntennas } from '../requests';
 // import AntennaModal from './AntennaForm'
 
 Leaflet.Icon.Default.imagePath =
@@ -18,17 +19,26 @@ Leaflet.Icon.Default.mergeOptions({
 });
 
 const Map = () => {
-    const [position, setPosition] = useState({ lat: 44.4268, lng: 26.1025 });
+    const [position] = useState({ lat: 44.4268, lng: 26.1025 });
     const [mousePosition, setMousePosition] = useState({ lat: 0, lng: 0 });
     const [open, setOpen] = useState(false); // for antenna modal
+    const [antennas, setAntennas] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await getAllAntennas();
+            setAntennas(data);
+        }
+        fetchData();
+    }, []);
 
     const handleClick = async (e) => {
-        const isAdm = await isAdmin();
+        // const isAdm = await isAdmin();
         // if (!isAdm) return;
 
         setMousePosition({ lat: e.latlng.lat, lng: e.latlng.lng });
         const path = window.location.pathname;
-        // if (path !== '/admin/add-location') return;
+        if (path !== '/dashboard') return;
         setOpen(true);
     }
 
@@ -48,11 +58,17 @@ const Map = () => {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={[position.lat, position.lng]}>
-                    <Popup>
-                        A pretty CSS3 popup. <br /> Easily customizable.
-                    </Popup>
-                </Marker>
+                {antennas.map((antenna, index) => {
+                    return (
+                        <Marker key={index} position={[antenna.lat, antenna.lng]}>
+                            <Popup>
+                                <div>
+                                    <p>{antenna.provider}</p>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    )
+                })}
                 <LocationFinder />
             </MapContainer>
             <AntennaModal open={open} handleClose={() => setOpen(false)} position={mousePosition} />

@@ -6,11 +6,11 @@ const antennaSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    positionX: {
+    lat: {
         type: Number,
         required: true
     },
-    positionY: {
+    lng: {
         type: Number,
         required: true
     }
